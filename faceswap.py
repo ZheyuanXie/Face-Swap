@@ -1,10 +1,11 @@
 #coding=utf-8  
 import cv2
 import dlib
+import numpy
 import numpy as np
 import sys
 
-PREDICTOR_PATH = "/Users/zhangns/Downloads/shape_predictor_68_face_landmarks.dat"
+PREDICTOR_PATH = "shape_predictor_68_face_landmarks.dat"
 SCALE_FACTOR = 1 
 FEATHER_AMOUNT = 11
 
@@ -150,53 +151,69 @@ def correct_colours(im1, im2, landmarks1):
 
     return (im2.astype(numpy.float64) * im1_blur.astype(numpy.float64) /
                                                 im2_blur.astype(numpy.float64))
+# for i in range(1,20):
+#     print(i)
+#     im1, landmarks1 = read_im_and_landmarks('Videowrite_easy/'+str(i)+".jpg")
+#     im2, landmarks2 = read_im_and_landmarks("1.jpg")
 
-# im1, landmarks1 = read_im_and_landmarks("2.jpg")
-# im2, landmarks2 = read_im_and_landmarks("1.jpg")
+#     M = transformation_from_points(landmarks1[ALIGN_POINTS],
+#                                 landmarks2[ALIGN_POINTS])
 
-# M = transformation_from_points(landmarks1[ALIGN_POINTS],
-#                                landmarks2[ALIGN_POINTS])
+#     mask = get_face_mask(im2, landmarks2)
+#     warped_mask = warp_im(mask, M, im1.shape)
+#     combined_mask = numpy.max([get_face_mask(im1, landmarks1), warped_mask],
+#                             axis=0)
 
-# mask = get_face_mask(im2, landmarks2)
-# warped_mask = warp_im(mask, M, im1.shape)
-# combined_mask = numpy.max([get_face_mask(im1, landmarks1), warped_mask],
-#                           axis=0)
+#     warped_im2 = warp_im(im2, M, im1.shape)
+#     warped_corrected_im2 = correct_colours(im1, warped_im2, landmarks1)
 
-# warped_im2 = warp_im(im2, M, im1.shape)
-# warped_corrected_im2 = correct_colours(im1, warped_im2, landmarks1)
+#     output_im = im1 * (1.0 - combined_mask) + warped_corrected_im2 * combined_mask
 
-# output_im = im1 * (1.0 - combined_mask) + warped_corrected_im2 * combined_mask
+#     cv2.imwrite('output'+str(i)+'.jpg', output_im)
 
-# cv2.imwrite('output.jpg', output_im)
 
 if __name__ == "__main__":
-    # img = cv2.imread("2.jpg", cv2.IMREAD_COLOR)
-    # b, g, r = cv2.split(img)
-    # img2 = cv2.merge([r, g, b])
-    # dets = detector(img, 1)
-    # face=dets[0]
-    # # cv2.rectangle(img, (left, top), (right, bottom), (0, 255, 0), 3)
-    # # # cv2.namedWindow(f, cv2.WINDOW_AUTOSIZE)
-    # # cv2.imshow("image",img)
-    # # cv2.waitKey(0)
-    # shp = predictor(img, dets[0])
-    # # cv2.circle(img, pt_pos, 3, (255, 0, 0), 2)
-    # # cv2.imshow("image2",img)
-    # # cv2.waitKey(0)
-    # landmarks=get_landmarks(img)
-    # # cv2.circle(img, (landmarks[7,0],landmarks[7,1]), 3, (255, 0, 0), 2)
-    # # cv2.imshow("image2",img)
-    # # cv2.waitKey(0)
-    # # for group in OVERLAY_POINTS:
-    # #     # print(cv2.convexHull(landmarks[group]))
-    # #     draw_convex_hull(img,landmarks[group],color=1)
+    img = cv2.imread("2.jpg", cv2.IMREAD_COLOR)
+    b, g, r = cv2.split(img)
+    img2 = cv2.merge([r, g, b])
+    dets = detector(img, 1)
+    face=dets[0]
+    shp = predictor(img, dets[0])
+    # cv2.circle(img, pt_pos, 3, (255, 0, 0), 2)
+    # cv2.imshow("image2",img)
+    # cv2.waitKey(0)
+    landmarks=get_landmarks(img)
+    N_frames = 60
+    frames = np.empty((1,N_frames),dtype=np.ndarray)
+    for frame_ind in range(N_frames):
+        # print(frame_ind)
+        filename = "Videowrite_easy/"+str(frame_ind+1)+".jpg"
+        print(filename)
+        img = cv2.imread(filename)
+        b, g, r = cv2.split(img)
+        img2 = cv2.merge([r, g, b])
+        dets = detector(img, 1)
+        face=dets[0]
+        shp = predictor(img, dets[0])
+        landmarks=get_landmarks(img)
+        for groups in landmarks:
+            cv2.circle(img, (groups[0],groups[1]), 3, (255, 0, 0), 2)
+        frames[0,frame_ind] = img.copy()
+
+    while 1:
+        for frame_ind in range(N_frames):
+            cv2.imshow("window",frames[0,frame_ind])
+            cv2.waitKey(50)
+    # for group in OVERLAY_POINTS:
+    #     # print(cv2.convexHull(landmarks[group]))
+    #     draw_convex_hull(img,landmarks[group],color=1)
     # res=get_face_mask(img,landmarks)
-    # # print(res.shape)
+    # print(res.shape)
     # cv2.imshow("image",res)
     # cv2.waitKey(0)
-    """
-    find the center of the nose
-    """
+    # """
+    # find the center of the nose
+    # """
     
     
     
