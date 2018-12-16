@@ -4,6 +4,7 @@ import numpy as np
 from scipy.spatial import Delaunay
 import matplotlib.pyplot as plt
 from interp import interp2
+from faceswap import get_face_mask
 
 PREDICTOR_PATH = "shape_predictor_68_face_landmarks.dat"
 detector = dlib.get_frontal_face_detector()
@@ -22,6 +23,7 @@ def get_landmarks(im):
     if len(rects) == 0:
         raise NoFaces
     return np.array([[p.x, p.y] for p in predictor(im, rects[0]).parts()])
+
 
 def load2video(filename1,filename2,n_frames):
     cap1 = cv2.VideoCapture(filename1)
@@ -85,12 +87,19 @@ if __name__ == "__main__":
 
         tri = Delaunay(landmarks2)
         # print(landmarks2)
-        x,y = np.meshgrid(np.arange(face.left(),face.right()),np.arange(face.top(),face.bottom()))
-        cv2.rectangle(img2, (face.left(), face.top()), (face.right(), face.bottom()), (0, 255, 0), 3)
+        # x,y = np.meshgrid(np.arange(face.left(),face.right()),np.arange(face.top(),face.bottom()))
+        
+        # cv2.rectangle(img2, (face.left(), face.top()), (face.right(), face.bottom()), (0, 255, 0), 3)
         # cv2.namedWindow(f, cv2.WINDOW_AUTOSIZE)
-        cv2.imshow("image",img2)
-        cv2.waitKey(0)
-        points=(np.vstack([x.flatten(),y.flatten()])).T
+        # cv2.imshow("image",img2)
+        # cv2.waitKey(0)
+        # points=(np.vstack([x.flatten(),y.flatten()])).T
+        points=get_face_mask(img2,landmarks2)[:,:,0]
+        # cv2.imshow("img",points)
+        # cv2.waitKey(0)
+        position=np.where(points>0)
+        points=np.vstack((position[1],position[0])).T
+        # print(points.shape)
         # print(points)
         belong_to_tri=tri.find_simplex(points)
         # print(belong_to_tri)

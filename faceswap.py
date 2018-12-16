@@ -183,7 +183,7 @@ if __name__ == "__main__":
     # cv2.imshow("image2",img)
     # cv2.waitKey(0)
     landmarks=get_landmarks(img)
-    N_frames = 60
+    N_frames = 1
     frames = np.empty((1,N_frames),dtype=np.ndarray)
     for frame_ind in range(N_frames):
         # print(frame_ind)
@@ -200,17 +200,17 @@ if __name__ == "__main__":
             cv2.circle(img, (groups[0],groups[1]), 3, (255, 0, 0), 2)
         frames[0,frame_ind] = img.copy()
 
-    while 1:
-        for frame_ind in range(N_frames):
-            cv2.imshow("window",frames[0,frame_ind])
-            cv2.waitKey(50)
+    # while 1:
+    #     for frame_ind in range(N_frames):
+    #         cv2.imshow("window",frames[0,frame_ind])
+    #         cv2.waitKey(50)
     # for group in OVERLAY_POINTS:
     #     # print(cv2.convexHull(landmarks[group]))
     #     draw_convex_hull(img,landmarks[group],color=1)
-    # res=get_face_mask(img,landmarks)
-    # print(res.shape)
-    # cv2.imshow("image",res)
-    # cv2.waitKey(0)
+    res=get_face_mask(img,landmarks)
+    print(res.shape)
+    cv2.imshow("image",res)
+    cv2.waitKey(0)
     # """
     # find the center of the nose
     # """
