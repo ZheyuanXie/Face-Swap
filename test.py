@@ -11,7 +11,7 @@ from scipy.spatial import Delaunay
 from interp import interp2
 from faceswap import get_face_mask, correct_colours
 from loader import loadvideo, loadlandmarks, vislandmarks
-
+from smoothTraj import smooth_landmark_traj
 
 """
 num: triangle number
@@ -30,10 +30,10 @@ if __name__ == "__main__":
     source_video = loadvideo(filename1)
     target_video = loadvideo(filename2)
     target_video_with_landmark = vislandmarks(filename2)
-    source_landmarks = loadlandmarks(filename1)
-    target_landmarks = loadlandmarks(filename2)
+    source_landmarks = smooth_landmark_traj(loadlandmarks(filename1))
+    target_landmarks = smooth_landmark_traj(loadlandmarks(filename2))
 
-    N_FRAMES = 200
+    N_FRAMES = 100
     output = np.empty((N_FRAMES,),dtype=np.ndarray)
 
     for i in range(N_FRAMES):
@@ -48,7 +48,7 @@ if __name__ == "__main__":
         landmarks1_full = np.vstack((landmarks1.T,np.ones((1,68))))
         landmarks1_trans = np.dot(T_full,landmarks1_full)
         landmarks1_trans = landmarks1_trans[0:2,:].T
-        img1_trans = cv2.warpAffine(img1,T,(640,360))
+        img1_trans = cv2.warpAffine(img1,T,(img2.shape[1],img2.shape[0]))
 
         # correct colors
         img1_trans = correct_colours(img2,img1_trans,landmarks2).astype(np.uint8)
@@ -72,7 +72,11 @@ if __name__ == "__main__":
                 interp_1 = interp2(img1_trans[:, :, k], np.array([interp_position[:, 0]]), np.array([interp_position[:, 1]])).T
                 target_face[:, :, k][coor[:,1],coor[:,0]]=interp_1.reshape(-1,)
         
-        target_mask = get_face_mask(target_face,landmarks2).astype(np.uint8)
+        # target_mask = get_face_mask(target_face,landmarks2.astype(int)).astype(np.uint8)
+        target_mask = np.zeros_like(img2).astype(np.uint8)
+        target_mask[target_face[:,:,0]>0] = 1
+        target_mask[target_face[:,:,1]>0] = 1
+        target_mask[target_face[:,:,2]>0] = 1
         output[i] = (img2 * (1.0 - target_mask) + target_face * target_mask).astype(np.uint8)
         # output[i] = cv2.seamlessClone(img1_trans,img2,target_mask,(179,319),cv2.NORMAL_CLONE)
 
@@ -82,5 +86,6 @@ if __name__ == "__main__":
     while 1:
         for i in range(N_FRAMES):
             cv2.imshow("output",output[i])
-            cv2.imshow("original",target_video_with_landmark[i])
+            cv2.imshow("original",target_video[i])
+            cv2.imshow("landmark",target_video_with_landmark[i])
             cv2.waitKey(50)
