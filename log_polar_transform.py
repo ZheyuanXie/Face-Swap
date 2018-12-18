@@ -2,7 +2,6 @@ import numpy as np
 import cv2
 from faceswap import *
 from interp import *
-import dlib
 
 """
 generate M*N log-polar coordinate

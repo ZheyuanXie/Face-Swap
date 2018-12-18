@@ -1,3 +1,9 @@
+'''
+Filename: loader.py
+Author: Zheyuan Xie
+Date created: 2018-12-18
+'''
+
 import pickle
 import cv2
 from getLandmarks import get_landmarks

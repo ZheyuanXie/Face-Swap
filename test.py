@@ -1,44 +1,22 @@
+'''
+Filename: test.py
+Author: Ningshan Zhang, Zheyuan Xie
+Date created: 2018-12-16
+'''
+
 import cv2
-import dlib
 import numpy as np
+from getLandmarks import get_landmarks
 from scipy.spatial import Delaunay
-import matplotlib.pyplot as plt
 from interp import interp2
-from faceswap import get_face_mask
+from faceswap import get_face_mask, correct_colours
+from loader import loadvideo, loadlandmarks, vislandmarks
 
-PREDICTOR_PATH = "shape_predictor_68_face_landmarks.dat"
-detector = dlib.get_frontal_face_detector()
-predictor = dlib.shape_predictor(PREDICTOR_PATH)
-
-class TooManyFaces(Exception):
-    pass
-
-class NoFaces(Exception):
-    pass
-
-def get_landmarks(im):
-    rects = detector(im, 1)
-    if len(rects) > 1:
-        raise TooManyFaces
-    if len(rects) == 0:
-        raise NoFaces
-    return np.array([[p.x, p.y] for p in predictor(im, rects[0]).parts()])
-
-
-def load2video(filename1,filename2,n_frames):
-    cap1 = cv2.VideoCapture(filename1)
-    cap2 = cv2.VideoCapture(filename2)
-    video1 = np.empty((n_frames,),dtype=np.ndarray)
-    video2 = np.empty((n_frames,),dtype=np.ndarray)
-    for i in range(n_frames):
-        ret, video1[i] = cap1.read()
-        ret, video2[i] = cap2.read()
-    return video1, video2
 
 """
-num triangle number
-points all the points in pts_trans
-coor points in landmarks2
+num: triangle number
+points: all the points in landmarks1_trans
+coor: points in landmarks2
 """
 def barycentric(num,points,coor):
     A=np.vstack((points[num,:].T,np.array([1,1,1])))
@@ -46,127 +24,63 @@ def barycentric(num,points,coor):
     bary_coff=np.linalg.inv(A).dot(b.T)
     return bary_coff
 
-
 if __name__ == "__main__":
     filename1 = 'CIS581Project4PartCDatasets/Easy/FrankUnderwood.mp4'
     filename2 = 'CIS581Project4PartCDatasets/Easy/MrRobot.mp4'
-    N_FRAMES = 1
-    video1, video2 = load2video(filename1,filename2,n_frames=N_FRAMES)
+    source_video = loadvideo(filename1)
+    target_video = loadvideo(filename2)
+    target_video_with_landmark = vislandmarks(filename2)
+    source_landmarks = loadlandmarks(filename1)
+    target_landmarks = loadlandmarks(filename2)
 
-    output1 = np.empty((N_FRAMES,),dtype=np.ndarray)
-    output2 = np.empty((N_FRAMES,),dtype=np.ndarray)
+    N_FRAMES = 200
+    output = np.empty((N_FRAMES,),dtype=np.ndarray)
+
     for i in range(N_FRAMES):
-        img1 = video1[i].copy()
-        dets = detector(img1, 1)
-        # shp = predictor(img1, dets[0])
-        landmarks1=get_landmarks(img1)
-        for groups in landmarks1:
-            cv2.circle(img1, (groups[0],groups[1]), 3, (255, 0, 0), 2)
-        # cv2.imshow("111",img1)
-        # cv2.waitKey(1000)
-        output1[i] = img1.copy()
-        img2 = video2[i].copy()
-        dets = detector(img2, 1)
-        face=dets[0]
-        # shp = predictor(img2, dets[0])
-        landmarks2=get_landmarks(img2)
-        for groups in landmarks2:
-            cv2.circle(img2, (groups[0],groups[1]), 3, (255, 0, 0), 2)
-        output2[i] = img2.copy()
-        # cv2.imshow("222",img2)
-        # cv2.waitKey(1000)
+        img1 = source_video[i].copy()
+        img2 = target_video[i].copy()
+        landmarks1=source_landmarks[i]
+        landmarks2=target_landmarks[i]
 
+        # Transform face from image1 (Frank) to align with image2 (Mr.Robot)
         T = cv2.estimateRigidTransform(landmarks1, landmarks2, False)
-        # print(T)
-        imtrans = cv2.warpAffine(video1[i],T,(640,360))
         T_full = np.vstack((T,np.array([0,0,1])))
-        pts_full = np.vstack((landmarks1.T,np.ones((1,68))))
-        pts_trans = np.dot(T_full,pts_full)
-        pts_trans = pts_trans[0:2,:].T
-        # print(pts_trans.shape)
+        landmarks1_full = np.vstack((landmarks1.T,np.ones((1,68))))
+        landmarks1_trans = np.dot(T_full,landmarks1_full)
+        landmarks1_trans = landmarks1_trans[0:2,:].T
+        img1_trans = cv2.warpAffine(img1,T,(640,360))
 
+        # correct colors
+        img1_trans = correct_colours(img2,img1_trans,landmarks2).astype(np.uint8)
+
+        # Create a Delaunay triangulation
         tri = Delaunay(landmarks2)
-        # print(landmarks2)
-        # x,y = np.meshgrid(np.arange(face.left(),face.right()),np.arange(face.top(),face.bottom()))
-        
-        # cv2.rectangle(img2, (face.left(), face.top()), (face.right(), face.bottom()), (0, 255, 0), 3)
-        # cv2.namedWindow(f, cv2.WINDOW_AUTOSIZE)
-        # cv2.imshow("image",img2)
-        # cv2.waitKey(0)
-        # points=(np.vstack([x.flatten(),y.flatten()])).T
-        points=get_face_mask(img2,landmarks2)[:,:,0]
-        # cv2.imshow("img",points)
-        # cv2.waitKey(0)
-        position=np.where(points>0)
+        mask=get_face_mask(img2,landmarks2)[:,:,0]
+        position=np.where(mask>0)
         points=np.vstack((position[1],position[0])).T
-        # print(points.shape)
-        # print(points)
         belong_to_tri=tri.find_simplex(points)
-        # print(belong_to_tri)
         max_tri=np.max(belong_to_tri)
-        print("max_tri",max_tri)
+
         # find points in Delaunay triangles
+        target_face = np.zeros_like(img2,dtype=np.uint8)
         for j in range(max_tri+ 1):
             num = tri.simplices[j]
-            # print(num)
             coor = points[np.where(belong_to_tri == j)]
-            # print(coor)
             bary_coff = barycentric(num, landmarks2, coor)
-            # print("bary_coor",bary_coff.shape)
-            interp_position = bary_coff.T.dot(pts_trans[num, :])
-            # print("interp_position",interp_position.shape)
+            interp_position = bary_coff.T.dot(landmarks1_trans[num, :])
             for k in range(3):
-                interp_1 = interp2(imtrans[:, :, k], np.array([interp_position[:, 0]]), np.array([interp_position[:, 1]])).T
-                # print(interp_1)
-                # print(coor[:,0].shape)
-                video2[i][:, :, k][coor[:,1],coor[:,0]]=interp_1.reshape(-1,)
-        cv2.imshow("image11",img1)
-        cv2.waitKey(0)
-        cv2.imshow("image1", imtrans)
-        cv2.waitKey(0)
-        cv2.imshow("image2",video2[i])
-        cv2.waitKey(0)
-
-        # print(tri)
-        # plt.triplot(pts_trans[:,0], pts_trans[:,1], tri.simplices.copy())
-        # plt.triplot(landmarks2[:,0], landmarks2[:,1], tri.simplices.copy())
-        # plt.plot(landmarks2[:,0], landmarks2[:,1], 'o')
-        # plt.plot(pts_trans[:,0], pts_trans[:,1], 'x')
-        # plt.gca().invert_yaxis()
-        # plt.show()
+                interp_1 = interp2(img1_trans[:, :, k], np.array([interp_position[:, 0]]), np.array([interp_position[:, 1]])).T
+                target_face[:, :, k][coor[:,1],coor[:,0]]=interp_1.reshape(-1,)
         
+        target_mask = get_face_mask(target_face,landmarks2).astype(np.uint8)
+        output[i] = (img2 * (1.0 - target_mask) + target_face * target_mask).astype(np.uint8)
+        # output[i] = cv2.seamlessClone(img1_trans,img2,target_mask,(179,319),cv2.NORMAL_CLONE)
 
-    #     for j in range(maximum+1):
-    #   num=Tri.simplices[j]
-    #   coor=pixels[np.where(location==j)] # pairs belong to j triangle
-    #   bary_coff = barycentric(num, points,coor)
-
-        # landmarks2t = cv2.transform(landmarks2,T)
-        # print(landmarks2.shape)
-    #     output1[i] = imtrans# * 0.5 + output2[i] * 0.5
-    # while 1:
-    #     for i in range(n_frames):
-    #         cv2.imshow("video1",output1[i])
-    #         cv2.imshow("video2",output2[i])
-    #         cv2.waitKey(50)
-
-    # N_frames = 10
-    # frames = np.empty((1,N_frames),dtype=np.ndarray)
-    # for frame_ind in range(N_frames):
-    #     filename = "Videowrite_easy/"+str(frame_ind+1)+".jpg"
-    #     print(filename)
-    #     img = cv2.imread(filename)
-    #     b, g, r = cv2.split(img)
-    #     img2 = cv2.merge([r, g, b])
-    #     dets = detector(img, 1)
-    #     face=dets[0]
-    #     shp = predictor(img, dets[0])
-    #     landmarks=get_landmarks(img)
-    #     for groups in landmarks:
-    #         cv2.circle(img, (groups[0],groups[1]), 3, (255, 0, 0), 2)
-    #     frames[0,frame_ind] = img.copy()
-
-    # while 1:
-    #     for frame_ind in range(N_frames):
-    #         cv2.imshow("window",frames[0,frame_ind])
-    #         cv2.waitKey(50)
+        print("processing frame %d"%i)
+    
+    # playback result
+    while 1:
+        for i in range(N_FRAMES):
+            cv2.imshow("output",output[i])
+            cv2.imshow("original",target_video_with_landmark[i])
+            cv2.waitKey(50)
