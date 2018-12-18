@@ -50,12 +50,12 @@ def barycentric(num,points,coor):
 if __name__ == "__main__":
     filename1 = 'CIS581Project4PartCDatasets/Easy/FrankUnderwood.mp4'
     filename2 = 'CIS581Project4PartCDatasets/Easy/MrRobot.mp4'
-    n_frames = 1#
-    video1, video2 = load2video(filename1,filename2,n_frames)
-    output1 = np.empty((n_frames,),dtype=np.ndarray)
-    output2 = np.empty((n_frames,),dtype=np.ndarray)
-    for i in range(n_frames):
-        print(i)
+    N_FRAMES = 1
+    video1, video2 = load2video(filename1,filename2,n_frames=N_FRAMES)
+
+    output1 = np.empty((N_FRAMES,),dtype=np.ndarray)
+    output2 = np.empty((N_FRAMES,),dtype=np.ndarray)
+    for i in range(N_FRAMES):
         img1 = video1[i].copy()
         dets = detector(img1, 1)
         # shp = predictor(img1, dets[0])
@@ -120,6 +120,8 @@ if __name__ == "__main__":
                 # print(interp_1)
                 # print(coor[:,0].shape)
                 video2[i][:, :, k][coor[:,1],coor[:,0]]=interp_1.reshape(-1,)
+        cv2.imshow("image11",img1)
+        cv2.waitKey(0)
         cv2.imshow("image1", imtrans)
         cv2.waitKey(0)
         cv2.imshow("image2",video2[i])

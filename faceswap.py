@@ -173,47 +173,48 @@ def correct_colours(im1, im2, landmarks1):
 
 
 if __name__ == "__main__":
-    img = cv2.imread("2.jpg", cv2.IMREAD_COLOR)
-    b, g, r = cv2.split(img)
-    img2 = cv2.merge([r, g, b])
-    dets = detector(img, 1)
-    face=dets[0]
-    shp = predictor(img, dets[0])
-    # cv2.circle(img, pt_pos, 3, (255, 0, 0), 2)
-    # cv2.imshow("image2",img)
-    # cv2.waitKey(0)
-    landmarks=get_landmarks(img)
-    N_frames = 1
-    frames = np.empty((1,N_frames),dtype=np.ndarray)
-    for frame_ind in range(N_frames):
-        # print(frame_ind)
-        filename = "Videowrite_easy/"+str(frame_ind+1)+".jpg"
-        print(filename)
-        img = cv2.imread(filename)
-        b, g, r = cv2.split(img)
-        img2 = cv2.merge([r, g, b])
-        dets = detector(img, 1)
-        face=dets[0]
-        shp = predictor(img, dets[0])
-        landmarks=get_landmarks(img)
-        for groups in landmarks:
-            cv2.circle(img, (groups[0],groups[1]), 3, (255, 0, 0), 2)
-        frames[0,frame_ind] = img.copy()
+    pass
+    # img = cv2.imread("2.jpg", cv2.IMREAD_COLOR)
+    # b, g, r = cv2.split(img)
+    # img2 = cv2.merge([r, g, b])
+    # dets = detector(img, 1)
+    # face=dets[0]
+    # shp = predictor(img, dets[0])
+    # # cv2.circle(img, pt_pos, 3, (255, 0, 0), 2)
+    # # cv2.imshow("image2",img)
+    # # cv2.waitKey(0)
+    # landmarks=get_landmarks(img)
+    # N_frames = 1
+    # frames = np.empty((1,N_frames),dtype=np.ndarray)
+    # for frame_ind in range(N_frames):
+    #     # print(frame_ind)
+    #     filename = "Videowrite_easy/"+str(frame_ind+1)+".jpg"
+    #     print(filename)
+    #     img = cv2.imread(filename)
+    #     b, g, r = cv2.split(img)
+    #     img2 = cv2.merge([r, g, b])
+    #     dets = detector(img, 1)
+    #     face=dets[0]
+    #     shp = predictor(img, dets[0])
+    #     landmarks=get_landmarks(img)
+    #     for groups in landmarks:
+    #         cv2.circle(img, (groups[0],groups[1]), 3, (255, 0, 0), 2)
+    #     frames[0,frame_ind] = img.copy()
 
-    # while 1:
-    #     for frame_ind in range(N_frames):
-    #         cv2.imshow("window",frames[0,frame_ind])
-    #         cv2.waitKey(50)
-    # for group in OVERLAY_POINTS:
-    #     # print(cv2.convexHull(landmarks[group]))
-    #     draw_convex_hull(img,landmarks[group],color=1)
-    res=get_face_mask(img,landmarks)
-    print(res.shape)
-    cv2.imshow("image",res)
-    cv2.waitKey(0)
-    # """
-    # find the center of the nose
-    # """
+    # # while 1:
+    # #     for frame_ind in range(N_frames):
+    # #         cv2.imshow("window",frames[0,frame_ind])
+    # #         cv2.waitKey(50)
+    # # for group in OVERLAY_POINTS:
+    # #     # print(cv2.convexHull(landmarks[group]))
+    # #     draw_convex_hull(img,landmarks[group],color=1)
+    # res=get_face_mask(img,landmarks)
+    # print(res.shape)
+    # cv2.imshow("image",res)
+    # cv2.waitKey(0)
+    # # """
+    # # find the center of the nose
+    # # """
     
     
     
