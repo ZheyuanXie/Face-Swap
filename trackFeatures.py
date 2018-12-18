@@ -10,7 +10,7 @@ import cv2
 from scipy import signal
 from interp import interp2
 
-WINDOW_SIZE = 25
+WINDOW_SIZE = 11
 
 def estimateFeatureTranslation(startX,startY,Ix,Iy,img1,img2):
     X=startX
@@ -58,18 +58,26 @@ def estimateAllTranslation(startXs,startYs,img1,img2):
     return newXs, newYs
 
 if __name__ == "__main__":
-    
-    newXs, newYs =  estimateAllTranslation(startXs, startYs, frame1, frame2)
+    from loader import loadvideo, loadlandmarks
+    # filename = 'CIS581Project4PartCDatasets/Easy/MrRobot.mp4'
+    filename = 'CIS581Project4PartCDatasets/Easy/FrankUnderwood.mp4'
+    # filename = 'CIS581Project4PartCDatasets/Easy/JonSnow.mp4'
+    video = loadvideo(filename)
+    result = loadvideo(filename)
+    landmarks = loadlandmarks(filename)
 
-    import matplotlib.pyplot as plt
-    from matplotlib.patches import Rectangle
-    fig, ax = plt.subplots()
-    diff = np.subtract(frame1_gray.astype(int),frame2_gray.astype(int))
-    ax.imshow(diff,cmap='gray')
-    ax.scatter(newXs[newXs!=-1],newYs[newYs!=-1],color=(0,1,0))
-    ax.scatter(startXs[startXs!=-1],startYs[startYs!=-1],color=(1,0,0))
-    for i in range(n_object):
-        (xmin, ymin, boxw, boxh) = cv2.boundingRect(bbox[i,:,:])
-        patch = Rectangle((xmin,ymin),boxw,boxh,fill=False,color=(0,0,0),linewidth=1)
-        ax.add_patch(patch)
-    plt.show()
+    startXs = landmarks[0][:,[0]]
+    startYs = landmarks[0][:,[1]]
+    for i in range(1,len(video)):
+        newXs, newYs =  estimateAllTranslation(startXs, startYs, video[i-1], video[i])
+        newlandmarks = np.hstack((newXs, newYs)).astype(int)
+        startXs, startYs = newXs, newYs
+
+        # draw true landmarks
+        for groups in landmarks[i]:
+            cv2.circle(result[i], (groups[0],groups[1]), 3, (255, 0, 0), 2)
+        # draw tracker landmarks
+        for groups in newlandmarks:
+            cv2.circle(result[i], (groups[0],groups[1]), 3, (0, 255, 0), 2)
+        cv2.imshow('result',result[i])
+        cv2.waitKey(50)
