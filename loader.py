@@ -79,15 +79,15 @@ def vislandmarks(filename, play = False, use_facepp = False):
     return video
 
 if __name__ == "__main__":
-    easy1 = 'CIS581Project4PartCDatasets/Easy/FrankUnderwood.mp4'
-    easy2 = 'CIS581Project4PartCDatasets/Easy/MrRobot.mp4'
-    easy3 = 'CIS581Project4PartCDatasets/Easy/JonSnow.mp4'
-    medium1 = 'CIS581Project4PartCDatasets/Medium/LucianoRosso1.mp4'
-    medium2 = 'CIS581Project4PartCDatasets/Medium/LucianoRosso2.mp4'
-    medium3 = 'CIS581Project4PartCDatasets/Medium/LucianoRosso3.mp4'
-    hard1 = 'CIS581Project4PartCDatasets/Hard/Joker.mp4'
-    hard2 = 'CIS581Project4PartCDatasets/Hard/LeonardoDiCaprio.mp4'
-    xi = 'CIS581Project4PartCDatasets/xidada.mp4'
+    easy1 = 'Datasets/Easy/FrankUnderwood.mp4'
+    easy2 = 'Datasets/Easy/MrRobot.mp4'
+    easy3 = 'Datasets/Easy/JonSnow.mp4'
+    medium1 = 'Datasets/Medium/LucianoRosso1.mp4'
+    medium2 = 'Datasets/Medium/LucianoRosso2.mp4'
+    medium3 = 'Datasets/Medium/LucianoRosso3.mp4'
+    hard1 = 'Datasets/Hard/Joker.mp4'
+    hard2 = 'Datasets/Hard/LeonardoDiCaprio.mp4'
+    xi = 'Datasets/xidada.mp4'
     # savelandmarks(xi)
     # savelandmarks_facepp(xi)
     vislandmarks(xi, play=True, use_facepp=True)

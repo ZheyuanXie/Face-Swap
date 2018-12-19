@@ -17,15 +17,15 @@ from seamlessCloningPoisson import seamlessCloningPoisson
 import time
 
 if __name__ == "__main__":
-    easy1 = 'CIS581Project4PartCDatasets/Easy/FrankUnderwood.mp4'
-    easy2 = 'CIS581Project4PartCDatasets/Easy/MrRobot.mp4'
-    easy3 = 'CIS581Project4PartCDatasets/Easy/JonSnow.mp4'
-    medium1 = 'CIS581Project4PartCDatasets/Medium/LucianoRosso1.mp4'
-    medium2 = 'CIS581Project4PartCDatasets/Medium/LucianoRosso2.mp4'
-    medium3 = 'CIS581Project4PartCDatasets/Medium/LucianoRosso3.mp4'
-    hard1 = 'CIS581Project4PartCDatasets/Hard/Joker.mp4'
-    hard2 = 'CIS581Project4PartCDatasets/Hard/LeonardoDiCaprio.mp4'
-    xi = 'CIS581Project4PartCDatasets/xidada.mp4'
+    easy1 = 'Datasets/Easy/FrankUnderwood.mp4'
+    easy2 = 'Datasets/Easy/MrRobot.mp4'
+    easy3 = 'Datasets/Easy/JonSnow.mp4'
+    medium1 = 'Datasets/Medium/LucianoRosso1.mp4'
+    medium2 = 'Datasets/Medium/LucianoRosso2.mp4'
+    medium3 = 'Datasets/Medium/LucianoRosso3.mp4'
+    hard1 = 'Datasets/Hard/Joker.mp4'
+    hard2 = 'Datasets/Hard/LeonardoDiCaprio.mp4'
+    xi = 'Datasets/xidada.mp4'
     source_video_path = easy1
     target_video_path = easy2
     source_video = loadvideo(source_video_path)
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     source_landmarks = smooth_landmark_traj(loadlandmarks_facepp(source_video_path))
     target_landmarks = smooth_landmark_traj(loadlandmarks_facepp(target_video_path))
 
-    N_FRAMES = 10
+    N_FRAMES = 100
     output = target_video.copy()
 
     time0 = time.time()
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         # output[i] = cv2.seamlessClone(img1_trans,img2,target_mask,(179,319),cv2.NORMAL_CLONE)
         time3 = time.time()
         
-        print("processing frame %d, transform: %.2f morph: %.2f blend %.2f"%(i,time1-time0,time2-time1,time3-time2))
+        print("processing frame %d, transform: %.2f morph: %.2f blend %.2f total:%.2f"%(i,time1-time0,time2-time1,time3-time2,time3-time0))
         time0 = time.time()
     
     # playback result
