@@ -6,28 +6,15 @@ Date created: 2018-12-16
 
 import cv2
 import numpy as np
-from getLandmarks import get_landmarks
 from scipy.spatial import Delaunay
 from interp import interp2
-from faceswap import get_face_mask
 from loader import loadvideo, loadlandmarks, loadlandmarks_facepp, vislandmarks
+from getLandmarks import get_landmarks
+from getMask import get_face_mask
 from smoothTraj import smooth_landmark_traj
 from simpleCloning import simpleCloning
 from seamlessCloningPoisson import seamlessCloningPoisson
 import time
-
-
-"""
-num: triangle number
-points: all the points in landmarks1_trans
-coor: points in landmarks2
-"""
-def barycentric(num,points,coor):
-    A=np.vstack((points[num,:].T,np.array([1,1,1])))
-    b=np.hstack((coor, np.ones([coor.shape[0],1])))
-    bary_coff=np.linalg.inv(A).dot(b.T)
-    return bary_coff
-
 
 if __name__ == "__main__":
     easy1 = 'CIS581Project4PartCDatasets/Easy/FrankUnderwood.mp4'
@@ -39,15 +26,15 @@ if __name__ == "__main__":
     hard1 = 'CIS581Project4PartCDatasets/Hard/Joker.mp4'
     hard2 = 'CIS581Project4PartCDatasets/Hard/LeonardoDiCaprio.mp4'
     xi = 'CIS581Project4PartCDatasets/xidada.mp4'
-    source_video_path = easy2
-    target_video_path = easy3
+    source_video_path = easy1
+    target_video_path = easy2
     source_video = loadvideo(source_video_path)
     target_video = loadvideo(target_video_path)
     target_video_with_landmark = vislandmarks(target_video_path, use_facepp=True)
     source_landmarks = smooth_landmark_traj(loadlandmarks_facepp(source_video_path))
     target_landmarks = smooth_landmark_traj(loadlandmarks_facepp(target_video_path))
 
-    N_FRAMES = 80
+    N_FRAMES = 10
     output = target_video.copy()
 
     time0 = time.time()
@@ -83,7 +70,9 @@ if __name__ == "__main__":
         target_face = np.zeros_like(img2,dtype=np.uint8)
         for ind,triangle in enumerate(tri.simplices):
             cartesian_coor = points[np.where(belong_to_tri == ind)]
-            barycentric_coor = barycentric(triangle, img2_reference_points, cartesian_coor)
+            A=np.vstack((img2_reference_points[triangle,:].T,np.array([1,1,1])))
+            b=np.hstack((cartesian_coor, np.ones([cartesian_coor.shape[0],1])))
+            barycentric_coor=np.linalg.inv(A).dot(b.T)
             img1_reference_points = np.vstack((landmarks1_trans,four_corners))
             interp_position = barycentric_coor.T.dot(img1_reference_points[triangle, :])
             for k in range(3):
