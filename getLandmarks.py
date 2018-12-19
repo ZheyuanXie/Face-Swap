@@ -4,19 +4,17 @@ Author: Zheyuan Xie
 Date created: 2018-12-18
 '''
 
-import dlib
 import numpy as np
-from PythonSDK.facepp import API,File
 from pprint import pformat
 import cv2
 
 # dlib detector and predictor
+import dlib
 PREDICTOR_PATH = "shape_predictor_68_face_landmarks.dat"
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(PREDICTOR_PATH)
 
-# faceplusplus API and landmark notation
-api = API()
+# faceplusplus landmark notation
 f = open('landmark83.txt')
 landmark_name = f.readline().split(',')
 f.close()
@@ -27,10 +25,11 @@ def get_landmarks(im):
         return None
     return np.array([[p.x, p.y] for p in predictor(im, rects[0]).parts()])
 
-def get_landmarks_facepp(img):
-    cv2.imwrite('temp.jpg',img)
-    res = api.detect(image_file=File('./temp.jpg'), return_landmark=1)
+def get_landmarks_facepp(img, api):
+    res = api.detect(image_file=img, return_landmark=1)
     lm = np.zeros((83,2))
+    if len(res['faces']) == 0:
+        return None
     for i in range(83):
         point = res['faces'][0]['landmark'][landmark_name[i]]
         lm[i,0] = point['x']
