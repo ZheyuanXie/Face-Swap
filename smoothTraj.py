@@ -30,14 +30,28 @@ def smooth_landmark_traj(landmarks):
 if __name__ == "__main__":
     from loader import loadlandmarks
     import matplotlib.pyplot as plt
-    filename = 'CIS581Project4PartCDatasets/Easy/MrRobot.mp4'
+    filename = 'Datasets/Easy/MrRobot.mp4'
     lm = loadlandmarks(filename)
     lm_smooth = smooth_landmark_traj(loadlandmarks(filename))
     x = np.zeros((len(lm),))
+    y = np.zeros((len(lm),))
     x_filter = np.zeros((len(lm),))
+    y_filter = np.zeros((len(lm),))
     for i in range(len(lm)):
         x[i] = lm[i][0,0]
+        y[i] = lm[i][0,1]
         x_filter[i] = lm_smooth[i][0,0]
-    plt.plot(x)
-    plt.plot(x_filter)
+        y_filter[i] = lm_smooth[i][0,1]
+    plt.figure(1)
+    plt.plot(x,linewidth=2.0)
+    plt.plot(x_filter,linewidth=2.0)
+    plt.legend(["Detected","Filtered"])
+    plt.xlabel("Frames")
+    plt.ylabel("Pixel Coordinate X")
+    plt.figure(2)
+    plt.plot(y,linewidth=2.0)
+    plt.plot(y_filter,linewidth=2.0)
+    plt.legend(["Detected","Filtered"])
+    plt.xlabel("Frames")
+    plt.ylabel("Pixel Coordinate Y")
     plt.show()

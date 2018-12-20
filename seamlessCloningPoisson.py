@@ -1,7 +1,7 @@
 '''
-  File name: seamlessCloningPoisson.py
-  Author: Ningshan Zhang, Zheyuan Xie
-  Date created: 2018-12-19
+File name: seamlessCloningPoisson.py
+Author: Ningshan Zhang, Zheyuan Xie
+Date created: 2018-12-19
 '''
 
 import numpy as np
@@ -83,7 +83,7 @@ def reconstructImg(indexes, red, green, blue, targetImg):
     return resultImg
 
 def seamlessCloningPoisson(sourceImg, targetImg, mask, landmark):
-    sourceImg = correct_colours(targetImg,sourceImg,landmark).astype(np.uint8)
+    # sourceImg = correct_colours(targetImg,sourceImg,landmark).astype(np.uint8)
     sourceImg = sourceImg.astype(np.double) / 255.0
     targetImg = targetImg.astype(np.double) / 255.0
     targetH,targetW=targetImg[:,:,0].shape

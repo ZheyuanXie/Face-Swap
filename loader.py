@@ -20,7 +20,7 @@ def loadvideo(filename):
     cap.release()
     return images
 
-def savelandmarks(filename):
+def savelandmarks_dlib(filename):
     video = loadvideo(filename)
     landmarks = []
     print('Number of Frames: %d'%(len(video)))
@@ -75,7 +75,7 @@ def vislandmarks(filename, play = False, use_facepp = False):
                 cv2.circle(video[i], (groups[0],groups[1]), 3, (0, 255, 0), 2)
         if play:
             cv2.imshow('Landmarks',video[i])
-            cv2.waitKey(50)
+            cv2.waitKey(0)
     return video
 
 if __name__ == "__main__":
@@ -88,6 +88,6 @@ if __name__ == "__main__":
     hard1 = 'Datasets/Hard/Joker.mp4'
     hard2 = 'Datasets/Hard/LeonardoDiCaprio.mp4'
     xi = 'Datasets/xidada.mp4'
-    # savelandmarks(xi)
+    # savelandmarks_dlib(xi)
     # savelandmarks_facepp(xi)
-    vislandmarks(xi, play=True, use_facepp=True)
+    vislandmarks(easy1, play=True, use_facepp=True)

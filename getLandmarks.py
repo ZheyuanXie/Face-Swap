@@ -38,7 +38,7 @@ def get_landmarks_facepp(img, api):
 
 if __name__ == "__main__":
     from loader import loadvideo
-    filename1 = 'CIS581Project4PartCDatasets/Easy/FrankUnderwood.mp4'
+    filename1 = 'Datasets/Easy/FrankUnderwood.mp4'
     print('loading...')
     video = loadvideo(filename1)
     print('done')

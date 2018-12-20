@@ -59,9 +59,7 @@ def estimateAllTranslation(startXs,startYs,img1,img2):
 
 if __name__ == "__main__":
     from loader import loadvideo, loadlandmarks
-    # filename = 'CIS581Project4PartCDatasets/Easy/MrRobot.mp4'
-    filename = 'CIS581Project4PartCDatasets/Easy/FrankUnderwood.mp4'
-    # filename = 'CIS581Project4PartCDatasets/Easy/JonSnow.mp4'
+    filename = 'Datasets/Easy/FrankUnderwood.mp4'
     video = loadvideo(filename)
     result = loadvideo(filename)
     landmarks = loadlandmarks(filename)

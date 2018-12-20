@@ -1,3 +1,9 @@
+'''
+File name: simpleCloning.py
+Author: Ningshan Zhang, Zheyuan Xie
+Date created: 2018-12-19
+'''
+
 import numpy as np
 import cv2
 
