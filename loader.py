@@ -8,6 +8,7 @@ import pickle
 import cv2
 from PythonSDK.facepp import API,File
 from getLandmarks import get_landmarks_facepp, get_landmarks
+from smoothTraj import smooth_landmark_traj
 
 def loadvideo(filename):
     cap = cv2.VideoCapture(filename)
@@ -60,11 +61,13 @@ def loadlandmarks_facepp(filename):
         landmarks = pickle.load(f)
     return landmarks
 
-def vislandmarks(filename, play = False, use_facepp = False):
+def vislandmarks(filename, play = False, use_facepp = False, smooth = False):
     video = loadvideo(filename)
     if use_facepp:
         landmarks_facepp = loadlandmarks_facepp(filename)
     landmarks = loadlandmarks(filename)
+    if smooth:
+        landmarks = smooth_landmark_traj(landmarks)
     n_frames = len(video)
     for i in range(n_frames):
         if landmarks[i] is not None:
@@ -75,7 +78,7 @@ def vislandmarks(filename, play = False, use_facepp = False):
                 cv2.circle(video[i], (groups[0],groups[1]), 3, (0, 255, 0), 2)
         if play:
             cv2.imshow('Landmarks',video[i])
-            cv2.waitKey(0)
+            cv2.waitKey(20)
     return video
 
 if __name__ == "__main__":

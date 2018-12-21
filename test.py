@@ -28,8 +28,8 @@ if __name__ == "__main__":
     hard1 = 'Datasets/Hard/Joker.mp4'
     hard2 = 'Datasets/Hard/LeonardoDiCaprio.mp4'
     xi = 'Datasets/xidada.mp4'
-    source_video_path = easy1
-    target_video_path = easy2
+    source_video_path = easy2
+    target_video_path = easy1
     source_video = loadvideo(source_video_path)
     target_video = loadvideo(target_video_path)
     target_video_with_landmark = vislandmarks(target_video_path, use_facepp=True)
@@ -109,6 +109,9 @@ if __name__ == "__main__":
         # plt.imshow(cv2.cvtColor(img2,cv2.COLOR_RGB2BGR))
         # plt.triplot(img2_reference_points[:,0], img2_reference_points[:,1], tri.simplices.copy())
         # plt.show()
+        cv2.imshow('img1_trans',target_face)
+        cv2.imshow('tgt',img1_trans)
+        cv2.waitKey(0)
         
         target_mask = get_face_mask(target_face,landmarks2.astype(int)).astype(np.uint8)
         output[i] = seamlessCloningPoisson(target_face,img2,target_mask[:,:,0],landmarks2)
